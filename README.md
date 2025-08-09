@@ -9,60 +9,77 @@ Este repositório contém os scripts SQL para o banco de dados do sistema de cad
 - `create_table.sql` - Script para criar a tabela Partners
 - `create_procedure.sql` - Script para criar a procedure sp_insert_partner
 - `script_example_select.sql` - Exemplo de consulta SELECT
+- `setup_complete.sh` - Script automatizado para configuração completa
 
-### Como Configurar e Testar
+### Como Configurar no WSL (Ubuntu)
 
 #### 1. Pré-requisitos
 
-- SQL Server (ou outro SGBD compatível)
-- SQL Server Management Studio (SSMS) ou cliente SQL similar
+- WSL2 com Ubuntu
+- SQL Server 2022 instalado no WSL
 
-#### 2. Configuração do Banco
+#### 2. Instalação do SQL Server (se necessário)
 
-```sql
--- Criar um novo banco de dados
-CREATE DATABASE ParceirosDB;
-USE ParceirosDB;
+```bash
+# Adicionar repositório Microsoft
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+
+# Adicionar repositório SQL Server 2022
+curl -fsSL https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
+
+# Instalar SQL Server
+sudo apt-get update
+sudo apt-get install -y mssql-server
+
+# Configurar SQL Server
+sudo /opt/mssql/bin/mssql-conf setup
+
+# Instalar ferramentas
+curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+sudo apt-get update && sudo apt-get install -y mssql-tools18 unixodbc-dev
+
+# Adicionar ao PATH
+echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-#### 3. Executar Scripts na Ordem
+#### 3. Configuração Automatizada
 
-1. **Criar a Tabela:**
+Execute o script de configuração completa:
 
-   - Execute o conteúdo completo do arquivo `create_table.sql`
+```bash
+chmod +x setup_complete.sh
+./setup_complete.sh
+```
 
-2. **Criar a Procedure:**
+#### 4. Configuração Manual (alternativa)
 
-   - Execute o conteúdo completo do arquivo `create_procedure.sql`
+1. **Criar o Banco:**
 
-3. **Testar a Funcionalidade:**
-
-   ```sql
-   -- Inserir um parceiro de teste
-   EXEC sp_insert_partner
-       @PartnerType = 'Cliente',
-       @PersonalityType = 'Jurídica',
-       @CompanyName = 'Empresa Teste LTDA',
-       @TradeName = 'Teste Store',
-       @CnpjCpf = '12.345.678/0001-90',
-       @Segment = 'Varejo',
-       @Category = 'Loja',
-       @ZipCode = '01234-567',
-       @Country = 'Brasil',
-       @State = 'SP',
-       @City = 'São Paulo',
-       @Street = 'Rua Teste',
-       @Number = '123',
-       @District = 'Centro',
-       @Email = 'teste@teste.com',
-       @Phone = '(11) 1234-5678',
-       @AddressComplement = '',
-       @MobilePhone = '(11) 98765-4321',
-       @Notes = 'Parceiro de teste';
+   ```bash
+   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -Q "CREATE DATABASE ACTI"
    ```
 
-4. **Consultar os Dados:**
-   - Execute o conteúdo do arquivo `script_example_select.sql`
+2. **Criar a Tabela:**
+
+   ```bash
+   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -d ACTI -i create_table.sql
+   ```
+
+3. **Criar a Procedure:**
+   ```bash
+   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -d ACTI -i create_procedure.sql
+   ```
+
+#### 5. Verificar Instalação
+
+```bash
+# Verificar status do SQL Server
+sudo systemctl status mssql-server
+
+# Testar conexão
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -Q "SELECT @@VERSION"
+```
 
 ### Validações Implementadas
 
