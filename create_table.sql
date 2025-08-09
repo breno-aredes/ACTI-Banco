@@ -1,0 +1,22 @@
+CREATE TABLE Partners (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    PartnerType VARCHAR(50) NOT NULL,
+    PersonalityType VARCHAR(20) NOT NULL,
+    CompanyName VARCHAR(255) NOT NULL,
+    TradeName VARCHAR(255),
+    CnpjCpf VARCHAR(20) NOT NULL,
+    Segment VARCHAR(100),
+    Category VARCHAR(100),
+    ZipCode VARCHAR(10),
+    Country VARCHAR(50) DEFAULT 'Brazil',
+    State VARCHAR(2),
+    City VARCHAR(100),
+    Street VARCHAR(255),
+    Number VARCHAR(20),
+    District VARCHAR(100),
+    Email VARCHAR(255),
+    Phone VARCHAR(20),
+    AddressComplement VARCHAR(255),
+    MobilePhone VARCHAR(20),
+    Notes TEXT
+);
